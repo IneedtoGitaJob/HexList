@@ -23,18 +23,21 @@ struct Node* nextE;
 struct Node* nextF;
 }Node;
 
+//Inserts a Value into the array
 void Insert(struct Node* Head, int val);
+//Helper function Sets all next pointers of a newly created array to NULL
 void Point_To_NULL(struct Node* Head);
-void Print_List(struct Node* HeadPoint);
 //returns 1 if the value is in the list else returns 0
 int Search(struct Node* HeadPoint, int val);
+//Helper function Used to traverse through the List
 struct Node* Traverse(struct Node* current, char value);
 
+//Starter function
 int main (){
 
 int New_val;
 FILE* f = fopen("obagna.txt","r");
-FILE* f2 = fopen("obagna.txt","r");
+FILE* f2 = fopen("obagna2.txt","r");
 if(f == NULL){
     return 0;
 }
@@ -46,57 +49,57 @@ Point_To_NULL(Head);
 while(fscanf(f,"%d",&New_val)!=EOF){
 Insert(Head,New_val);
 }
-
-int ger = 0;
 struct Node* HeadPoint = Head;
-Print_List(HeadPoint);
-/*
+int cal = 0;
 while(fscanf(f2,"%d",&New_val)!=EOF){
-
-  ger = Search(Head,New_val);
-   printf("%d\n", ger);
+cal = Search(HeadPoint, New_val);
+printf("\n%d\n",cal);
 }
-*/
 
 return 1;
 }
 
+//Inserts a Value into the array
 void Insert(struct Node* Head, int val)
 {
 //Inputs the hex value of a number into the array
 char Hexed_val[9];
 sprintf(Hexed_val, "%x", val);
-printf("%s\n",Hexed_val);
+printf("Hex:%s ",Hexed_val);
+printf("Val:%d ",val);
 struct Node* current = Head;
 struct Node* prev = Head;
 
+//Int i will be our iteration value because values in the array are stored in the opposite direction in which they should be read we start at the last full cell and iterate down
+int i = strlen(Hexed_val);
+printf("Len:%d \n",i);
+//Iterate until an empty node is found or we have run out of hexed values
+while(current != NULL && i > 0)
+{
+    prev = current;
+    current = Traverse(current, Hexed_val[i-1]);
+    i--;
+}
 
-//Iterate until either an empty Node or the same value is found and create a new node when an empty node is found
-for(int x = 0; x< strlen(Hexed_val);x++)
-{
-if(current != NULL)
-{
-            prev = current;
-        if(current->data == val)
-{
-            printf("Duplicate value ignored");
-        return;
-}
-    current = Traverse(current,Hexed_val[x]);
-}
-else
-{
-//creates new Node
+
+//Insert into an empty node
+if(current == NULL){
+
+//Create Node to be inserted
 struct Node* temp = (struct Node*)malloc(sizeof(struct Node));
 if(temp == NULL)
 {
 printf("Memory error");
-return;
+exit(0);
 }
+
 temp->data = val;
 Point_To_NULL(temp);
 
-switch(Hexed_val[x-1])
+
+
+//Link the rest of the tree to the new node
+switch(Hexed_val[i])
 {
 case '0':
 prev->next0 = temp;
@@ -147,10 +150,29 @@ case 'f':
 prev->nextF = temp;
 break;
 }
-}
-}
+
+
 }
 
+//Insert into a Full Node
+else{
+    //If we find a duplicate val we do not input it
+    if(current->data == val)
+    {
+    printf("duplicate value ignored");
+    return;
+    }
+    //Insert Behind
+        int val2 = current->data;
+            current->data = val;
+Insert(Head, val2);
+
+
+}
+
+}
+
+//Sets all next pointers of a newly created array to NULL
 void Point_To_NULL(struct Node* Head){
 Head->next0=NULL;
 Head->next1=NULL;
@@ -169,51 +191,31 @@ Head->nextD=NULL;
 Head->nextE=NULL;
 Head->nextF=NULL;
 }
-//Prints the entire list
-void Print_List(struct Node* current){
-//If empty return
-if(current !=NULL)
-{
-printf("%d ",current->data);
-Print_List(current->next0);
-Print_List(current->next1);
-Print_List(current->next2);
-Print_List(current->next3);
-Print_List(current->next4);
-Print_List(current->next5);
-Print_List(current->next6);
-Print_List(current->next7);
-Print_List(current->next8);
-Print_List(current->next9);
-Print_List(current->nextA);
-Print_List(current->nextB);
-Print_List(current->nextC);
-Print_List(current->nextD);
-Print_List(current->nextE);
-Print_List(current->nextF);
-}
-}
 
+//Searches for a specific val
 int Search(struct Node* HeadPoint, int val){
 char Hexed_val[9];
 sprintf(Hexed_val, "%x", val);
 struct Node* current = HeadPoint;
-int x = 0;
 
-while(current != NULL)
+int x = strlen(Hexed_val);
+
+while(x >0)
 {
+current = Traverse(current, Hexed_val[x-1]);
+x--;
+if(current != NULL){
 if(current->data == val){return 1;}
-else{current = Traverse(current, Hexed_val[x]);}
-x++;
+}
+else{
+    return 0;
+}
 }
 
 return 0;
-
 }
 
-
-
-
+//Used to traverse through the List
 struct Node* Traverse(struct Node* current, char value){
 switch(value){
 case '0':
